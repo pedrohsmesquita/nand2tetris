@@ -1,0 +1,48 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/02/FullAdder.hdl
+
+/**
+ * Computes the sum of three bits.
+ */
+
+/*
+    A | B | C | carry | sum
+    0 | 0 | 0 |   0   |  0
+    0 | 0 | 1 |   0   |  1
+    0 | 1 | 0 |   0   |  1
+    0 | 1 | 1 |   1   |  0
+    1 | 0 | 0 |   0   |  1
+    1 | 0 | 1 |   1   |  0
+    1 | 1 | 0 |   1   |  0
+    1 | 1 | 1 |   1   |  1
+
+    sum = !A!BC + !AB!C + A!B!C + ABC
+        = !A(!BC + B!C) + A(!B!C + BC)      !(B Xor C) = !B!C + BC
+        = !A(B Xor C) + A (!(B Xor C))      let X = B Xor C
+        = !AX + A!X
+        = A Xor X
+        = A Xor B Xor C
+    Notes: A Xor B comes from the first half-adder. A
+           second half-adder will be used to
+           compute A Xor B Xor C.
+    
+    carry = !ABC + A!BC + AB!C + ABC
+          = C(!AB + A!B) + AB(!C + C)       !C + C = 1
+          = C(A Xor B) + AB
+    Notes: AB comes from the first half-adder. A second
+           half-adder will be used to C(A xor B) 
+           and will Or with the previous Ab.
+*/
+
+CHIP FullAdder {
+    IN a, b, c;  // 1-bit inputs
+    OUT sum,     // Right bit of a + b + c
+        carry;   // Left bit of a + b + c
+
+    PARTS:
+        HalfAdder(a=a, b=b, sum=sum1, carry=carry1);
+        HalfAdder(a=sum1, b=c, sum=sum, carry=carry2);
+        Or(a=carry1, b=carry2, out=carry);
+}
